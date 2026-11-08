@@ -309,11 +309,11 @@
 
             <!-- Red Navigation Bar -->
             <div class="red-navbar">
-                <button class="nav-pill-red active" onclick="showTab('home-view', this)"><i class="bi bi-house-door-fill"></i> Home Dashboard</button>
-                <button class="nav-pill-red" onclick="showTab('notes-view', this)"><i class="bi bi-lock-fill"></i> Secure Notes</button>
-                <button class="nav-pill-red" onclick="showTab('tamper-view', this)"><i class="bi bi-pencil-fill"></i> Tamper Demo</button>
-                <button class="nav-pill-red" onclick="showTab('borrowing-view', this)"><i class="bi bi-journal-bookmark-fill"></i> Borrowing</button>
-                <button class="nav-pill-red" onclick="showTab('json-view', this)"><i class="bi bi-file-earmark-text-fill"></i> JSON Data</button>
+                <button class="nav-pill-red active" data-view="home-view" onclick="showTab('home-view', this)"><i class="bi bi-house-door-fill"></i> Home Dashboard</button>
+                <button class="nav-pill-red" data-view="notes-view" onclick="showTab('notes-view', this)"><i class="bi bi-lock-fill"></i> Secure Notes</button>
+                <button class="nav-pill-red" data-view="tamper-view" onclick="showTab('tamper-view', this)"><i class="bi bi-pencil-fill"></i> Tamper Demo</button>
+                <button class="nav-pill-red" data-view="borrowing-view" onclick="showTab('borrowing-view', this)"><i class="bi bi-journal-bookmark-fill"></i> Borrowing</button>
+                <button class="nav-pill-red" data-view="json-view" onclick="showTab('json-view', this)"><i class="bi bi-file-earmark-text-fill"></i> JSON Data</button>
             </div>
         </div>
     </div>
@@ -335,7 +335,7 @@
                     Privacy-First Study Notes Protected by <span>AES-256-GCM Cryptography</span>
                 </h2>
                 <p class="text-secondary col-lg-10 mx-auto mb-4" style="font-size: 1.15rem; line-height: 1.6;">
-                    Study Pulse is an end-to-end record encryption system, employing Galois/Counter Mode (GCM) for combined confidentiality and authentication. Guarantees 100% integrity of academic notes.
+                    Study Pulse encrypts study notes before saving them locally. AES-GCM provides confidentiality and detects changes when a note is decrypted.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
                     <button class="btn btn-action-equal btn-red-main" onclick="openSpecificTab('notes-view', 1)">
@@ -358,22 +358,22 @@
                 <div class="col-md-3">
                     <div class="stat-card">
                         <small class="text-secondary d-block font-monospace"><i class="bi bi-lock-fill me-1"></i> PROTECTED NOTES</small>
-                        <h4 class="fw-bold text-white mt-2 mb-1">1 Saved</h4>
+                        <h4 class="fw-bold text-white mt-2 mb-1">{% if note_exists %}1 Saved{% else %}0 Saved{% endif %}</h4>
                         <small class="text-secondary">Zero plaintext stored on disk</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card">
                         <small class="text-secondary d-block font-monospace"><i class="bi bi-check-circle-fill me-1"></i> INTEGRITY STATUS</small>
-                        <h4 class="fw-bold text-white mt-2 mb-1">100% Authentic</h4>
-                        <small class="text-success"><span class="pulse-dot pulse-green"></span>No tampering detected</small>
+                        <h4 class="fw-bold text-white mt-2 mb-1">{{ integrity_status }}</h4>
+                        <small class="{% if integrity_status == 'Verified' %}text-success{% else %}text-secondary{% endif %}"><span class="pulse-dot {% if integrity_status == 'Verified' %}pulse-green{% else %}pulse-red{% endif %}"></span>{% if integrity_status == 'Verified' %}Authentication tag valid{% else %}{{ integrity_status }}{% endif %}</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card">
                         <small class="text-secondary d-block font-monospace"><i class="bi bi-journal-bookmark-fill me-1"></i> BORROWED ITEMS</small>
-                        <h4 class="fw-bold text-info mt-2 mb-1">1 Item(s)</h4>
-                        <small class="text-secondary">Section B Active</small>
+                        <h4 class="fw-bold text-info mt-2 mb-1">{{ active_borrow_count }} Active</h4>
+                        <small class="text-secondary">Borrowed items</small>
                     </div>
                 </div>
             </div>
@@ -387,6 +387,7 @@
                         <h4 class="fw-bold text-white mb-3"><i class="bi bi-shield-lock-fill text-danger me-2"></i>Encrypt & Decrypt Study Note Manager</h4>
                         <form method="POST">
                             {% csrf_token %}
+                            <input type="hidden" name="active_view" value="notes-view">
                             <div class="mb-3">
                                 <textarea name="study_note" class="form-control form-control-dark" rows="7" placeholder="Type private study notes (e.g., 'Review Chapter 3 before Friday exam. Focus on binary search trees.')"></textarea>
                             </div>
@@ -413,8 +414,19 @@
                 <div class="col-lg-5">
                     <div class="panel-card mb-4">
                         <h5 class="fw-bold text-white mb-3"><i class="bi bi-search me-2"></i>Search Encrypted Record</h5>
-                        <input type="text" class="form-control form-control-dark mb-2" placeholder="Type keyword to search encrypted record...">
-                        <small class="text-secondary font-monospace">Search encrypted items...</small>
+                        <form method="POST" class="d-flex gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="active_view" value="notes-view">
+                            <input type="search" name="keyword" value="{{ search_query }}" class="form-control form-control-dark" placeholder="Search note, item, student, or status" required>
+                            <button type="submit" name="action" value="search" class="btn btn-red-main" aria-label="Search"><i class="bi bi-search"></i></button>
+                        </form>
+                        {% if search_performed %}
+                        <div class="mt-3 small">
+                            {% if search_results %}
+                                {% for result in search_results %}<p class="mb-1 text-info">{{ result }}</p>{% endfor %}
+                            {% else %}<p class="mb-0 text-secondary">No matching notes or borrowing records.</p>{% endif %}
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="panel-card">
@@ -427,7 +439,7 @@
                                 <small class="text-secondary font-monospace ms-2" style="font-size: 0.75rem;">system_events.log</small>
                             </div>
                             <div class="p-3 font-monospace text-info small">
-                                System initialized. Ready for encryption operations.
+                                {% for notification in notifications %}<div class="mb-1">{{ notification }}</div>{% empty %}No notifications yet.{% endfor %}
                             </div>
                         </div>
                     </div>
@@ -445,6 +457,7 @@
 
                 <form method="POST" class="d-flex gap-3 mb-4">
                     {% csrf_token %}
+                    <input type="hidden" name="active_view" value="tamper-view">
                     <button type="submit" name="action" value="tamper_test" class="btn btn-warning fw-bold text-dark py-3 px-4 fs-6 rounded-3 shadow">
                         <i class="bi bi-bug-fill me-2"></i> 1. Deliberately Flip Ciphertext Hex Bits
                     </button>
@@ -469,26 +482,42 @@
         <div id="borrowing-view" class="tab-view-panel">
             <div class="panel-card">
                 <h3 class="fw-bold text-white mb-4"><i class="bi bi-journal-bookmark-fill text-danger me-2"></i>Academic Borrowing & Resource System</h3>
-                <div class="row g-3 mb-4">
+                <form method="POST" class="row g-3 mb-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="active_view" value="borrowing-view">
+                    <input type="hidden" name="action" value="borrow">
                     <div class="col-md-5">
-                        <input type="text" class="form-control form-control-dark" placeholder="Resource Item Name (e.g. Cryptography Handbook)">
+                        <input type="text" name="item_name" class="form-control form-control-dark" placeholder="Resource item name" required>
                     </div>
                     <div class="col-md-4">
-                        <input type="text" class="form-control form-control-dark" placeholder="Student ID (e.g. STU-2026-01)">
+                        <input type="text" name="student_id" class="form-control form-control-dark" placeholder="Student ID" required>
                     </div>
                     <div class="col-md-3">
-                        <button class="btn btn-action-equal btn-red-main w-100 py-3">Submit Borrow Request</button>
+                        <button type="submit" class="btn btn-action-equal btn-red-main w-100 py-3">Submit Borrow Request</button>
                     </div>
-                </div>
+                </form>
 
                 <h5 class="fw-bold text-white mb-3">Active Borrow Records</h5>
-                <div class="p-3 bg-dark border border-secondary rounded-3 d-flex justify-content-between align-items-center">
+                {% for record in borrow_records %}
+                <div class="p-3 bg-dark border border-secondary rounded-3 d-flex justify-content-between align-items-center gap-3 mb-2">
                     <div>
-                        <h5 class="text-white mb-1">AES Cryptography Handbook</h5>
-                        <div class="text-secondary small">Student: STU-2026-01 | Expected Return: 2026-11-12</div>
+                        <h5 class="text-white mb-1">{{ record.item }}</h5>
+                        <div class="text-secondary small">Student: {{ record.student_id }} | Due: {{ record.due_date }} | ID: {{ record.id }}</div>
                     </div>
-                    <span class="badge bg-warning text-dark px-3 py-2 fs-6">Borrowed</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge {% if record.status == 'borrowed' %}bg-warning text-dark{% else %}bg-success{% endif %} px-3 py-2">{{ record.status|title }}</span>
+                        {% if record.status == 'borrowed' %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="active_view" value="borrowing-view">
+                            <input type="hidden" name="action" value="return">
+                            <input type="hidden" name="record_id" value="{{ record.id }}">
+                            <button type="submit" class="btn btn-sm btn-dark-outline" aria-label="Return {{ record.item }}">Return</button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
+                {% empty %}<p class="text-secondary">No borrowing records yet.</p>{% endfor %}
             </div>
         </div>
 
@@ -533,6 +562,11 @@
             if (navButtons[btnIndex]) {
                 showTab(viewId, navButtons[btnIndex]);
             }
+        }
+
+        const activeViewButton = document.querySelector('.nav-pill-red[data-view="{{ active_view|escapejs }}"]');
+        if (activeViewButton) {
+            showTab("{{ active_view|escapejs }}", activeViewButton);
         }
     </script>
 </body>
