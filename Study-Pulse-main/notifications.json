@@ -1,0 +1,6 @@
+[
+  "Tamper Test: AES-GCM tag correctly rejected bad data.",
+  "Tamper Test: AES-GCM tag correctly rejected bad data.",
+  "Decrypt: Verified authentication tag successfully.",
+  "Encrypt: Saved study note using AES-256-GCM."
+]
