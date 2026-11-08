@@ -1,0 +1,31 @@
+[
+  {
+    "id": "5c8c2b05",
+    "item": "chapter 3 final defence",
+    "student_id": "2019000113",
+    "status": "returned",
+    "borrowed_on": "2026-11-08",
+    "due_date": "2026-11-22",
+    "overdue_notified": false,
+    "returned_on": "2026-11-08"
+  },
+  {
+    "id": "1220b401",
+    "item": "chapter 3 final defence",
+    "student_id": "121212",
+    "status": "returned",
+    "borrowed_on": "2026-11-08",
+    "due_date": "2026-11-22",
+    "overdue_notified": false,
+    "returned_on": "2026-11-08"
+  },
+  {
+    "id": "f992c93a",
+    "item": "chapter 32 final defence",
+    "student_id": "2019000113",
+    "status": "borrowed",
+    "borrowed_on": "2026-11-08",
+    "due_date": "2026-11-22",
+    "overdue_notified": false
+  }
+]

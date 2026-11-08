@@ -1,5 +1,4 @@
 {
-  "algorithm": "AES-256-GCM",
-  "nonce": "25af5f0ffc4ad80895a5a299",
-  "ciphertext": "2d9d03df8f4205ef7105bf0dfca6cc12a6420e567d61c7b63fcfa353cfa72ababca4"
+  "nonce": "c0388eb34b2372b39fb40887",
+  "ciphertext": "7f3706769913195e9f1aae246f1c8468d5584e7ff2552714cfddd9bd426167ec4970a673a27e733f"
 }
