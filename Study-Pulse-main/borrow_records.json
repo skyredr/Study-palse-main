@@ -23,9 +23,10 @@
     "id": "f992c93a",
     "item": "chapter 32 final defence",
     "student_id": "2019000113",
-    "status": "borrowed",
+    "status": "returned",
     "borrowed_on": "2026-11-08",
     "due_date": "2026-11-22",
-    "overdue_notified": false
+    "overdue_notified": false,
+    "returned_on": "2026-11-12"
   }
 ]
